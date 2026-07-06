@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stream bug</title>
+<style>
+  body{font-family:-apple-system,sans-serif;font-size:19px;padding:14px}
+  h2{font-size:21px;margin:0 0 10px}
+  .ok{color:#0a0;font-weight:bold}
+  #log div{padding:3px 0;border-bottom:1px solid #eee}
+</style>
+</head>
+<body>
+<h2>WebKit #231156 live repro</h2>
+<p>audio = live stream (never finishes) &rarr; readyState should stay <b>interactive</b> forever, load never fires.</p>
+<audio autoplay controls>
+  <source src="https://stream.srg-ssr.ch/m/rsj/mp3_128">
+</audio>
+<div id="log"></div>
+<script>
+  var l = document.getElementById('log');
+  function log(t, c) { var d = document.createElement('div'); d.textContent = t; if (c) d.className = c; l.appendChild(d); }
+  var n = 0;
+  var iv = setInterval(function () {
+    n++;
+    log('[' + n + 's] document.readyState = ' + document.readyState);
+    if (document.readyState === 'complete') { log('COMPLETE', 'ok'); clearInterval(iv); }
+  }, 1000);
+  window.addEventListener('load', function () { log('window.onload FIRED', 'ok'); });
+  document.fonts.ready.then(function () { log('document.fonts.ready RESOLVED', 'ok'); });
+</script>
+</body>
+</html>
