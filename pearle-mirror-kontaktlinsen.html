@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pearle mirror — kontaktlinsen/pflegemittel</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { margin: 0; font-family: -apple-system, Helvetica, Arial, sans-serif; }
+  header { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #ddd; }
+  [data-element-id="MainNav"] { font-size: 22px; background: none; border: 0; padding: 8px 12px; }
+  /* mobile nav is hidden until MainNav is clicked (customer: nav opens on hamburger) */
+  .site-nav-mobile { display: none; border-bottom: 1px solid #eee; }
+  .site-nav-mobile.open { display: block; }
+  .site-nav-mobile__item > a { display: block; padding: 14px 16px; text-decoration: none; color: #111; border-bottom: 1px solid #f0f0f0; }
+  /* submenu container hidden by display:none (exactly as in the captured DOM) */
+  .site-nav-mobile__page { display: none; padding-left: 16px; background: #fafafa; }
+  .site-nav-mobile__page.open { display: block; }
+  .site-nav-mobile-submenu a, .site-nav-mobile__page a { display: block; padding: 10px 16px; text-decoration: none; color: #333; font-size: 15px; }
+  /* product listing page (revealed after clicking pflegemittel) */
+  .product-listing { display: none; padding: 20px; }
+  .product-listing.show { display: block; }
+  .card { border: 1px solid #ddd; border-radius: 8px; padding: 16px; margin: 8px 0; }
+</style>
+</head>
+<body>
+  <header>
+    <button data-element-id="MainNav" aria-label="Menu">&#9776;</button>
+    <strong style="margin-left:8px">Pearle</strong>
+  </header>
+
+  <nav class="site-nav-mobile" data-t="main-nav">
+    <ul style="list-style:none;margin:0;padding:0">
+      <li class="site-nav-mobile__item">
+        <a href="/brillen">Brillen</a>
+        <div class="site-nav-mobile__page"><div class="site-nav-mobile-submenu">
+          <a href="/brillen/sonnenbrillen">Sonnenbrillen</a>
+        </div></div>
+      </li>
+      <li class="site-nav-mobile__item">
+        <a href="/kontaktlinsen">Kontaktlinsen</a>
+        <!-- submenu hidden by display:none; the /kontaktlinsen/pflegemittel link lives here -->
+        <div class="site-nav-mobile__page"><div class="site-nav-mobile-submenu">
+          <a href="/kontaktlinsen/tageslinsen">Tageslinsen</a>
+          <a href="/kontaktlinsen/pflegemittel">Pflegemittel</a>
+          <a href="/kontaktlinsen/monatslinsen">Monatslinsen</a>
+        </div></div>
+      </li>
+    </ul>
+  </nav>
+
+  <main class="product-listing" data-t="product-listing-page-1">
+    <h1>Pflegemittel</h1>
+    <div class="card">Kontaktlinsen-Pflegemittel A</div>
+    <div class="card">Kontaktlinsen-Pflegemittel B</div>
+  </main>
+
+  <script>
+    // MainNav (hamburger) opens the mobile nav
+    document.querySelector('[data-element-id="MainNav"]').addEventListener('click', function () {
+      document.querySelector('.site-nav-mobile').classList.add('open');
+    });
+    // Category anchors expand their submenu page (this is the ANCHOR-CLICK the proxy must fire).
+    document.querySelectorAll('.site-nav-mobile__item > a').forEach(function (a) {
+      a.addEventListener('click', function (e) {
+        e.preventDefault();
+        var page = a.parentElement.querySelector('.site-nav-mobile__page');
+        if (page) page.classList.add('open');   // reveals the submenu links (pflegemittel etc.)
+      });
+    });
+    // pflegemittel navigates to the product listing (SPA-style; href matches customer selector)
+    document.querySelectorAll('a[href="/kontaktlinsen/pflegemittel"]').forEach(function (a) {
+      a.addEventListener('click', function (e) {
+        e.preventDefault();
+        document.querySelector('.site-nav-mobile').classList.remove('open');
+        document.querySelector('.product-listing').classList.add('show');
+        try { history.pushState({}, '', '/kontaktlinsen/pflegemittel'); } catch (_) {}
+      });
+    });
+  </script>
+</body>
+</html>
